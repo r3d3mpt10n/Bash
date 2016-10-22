@@ -45,8 +45,8 @@ function checkIt(){
 	mount -a 2>/root/ResizeBoot-fstab.log
 	if [ $? -eq 0 ]; then
 		grub2-mkconfig -o /boot/grub2/grub.cfg
-		echo "Nailed it! This server should be ok to be rebooted. Should I reboot it? I'll go ahead and reboot it"
-		reboot
+		echo "Nailed it! This server should be ok to be rebooted."
+		
 	else
 		echo "Well, didn't quite nail it. Check fstab. If not, nuke and pave, it's the only way! (It's not. You broke fstab.)"
 		exit 4
