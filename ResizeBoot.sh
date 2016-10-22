@@ -16,7 +16,7 @@ function backup(){
 function goldenFix(){
 	OLDUUID=blkid | grep `mount | grep "/boot " | awk '{ print $1}'` | awk '{ print $2 }'
 	mkdir /boot-new
-	cp -r -a /boot /boot-new
+	cp -r -a /boot/* /boot-new
 	if [ -d /boot-new ]; then
 		echo -e "o\nn\np\n1\n\n+500M\nw" | fdisk /dev/vdb
 		partprobe
