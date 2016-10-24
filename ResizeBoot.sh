@@ -3,9 +3,10 @@
 ## Backup important things
 function backup(){
 	cp /etc/fstab /root/backup-fstab
-	tar -cjvf /root/boot.tar.bz2 /boot
+	tar -cvf /root/boot.tar.bz2 /boot
 	if [ $? = 0 ]; then
 		goldenFix
+		echo $?
 	else
 		exit 3
 		echo "Script failed with code $?" >> /root/ResizeBoot.log
@@ -14,7 +15,8 @@ function backup(){
 
 ## Function says it all.
 function goldenFix(){
-	OLDUUID=blkid | grep `mount | grep "/boot " | awk '{ print $1}'` | awk '{ print $2 }'
+	OLDUUID=$(blkid | grep `mount | grep "/boot " | awk '{ print $1}'` | awk '{ print $2 }')
+	sed -i '/boot/s/^/#/g' /etc/fstab
 	mkdir /boot-new
 	cp -r -a /boot/* /boot-new
 	if [ -d /boot-new ]; then
@@ -32,7 +34,7 @@ function goldenFix(){
 		cp -r -a /boot-new/* /boot
 		DEVUUID=`blkid | grep /dev/vdb1 | awk '{ print$2 }'`
 		echo "$DEVUUID  /boot     ext4    defaults   0 0" >> /etc/fstab
-		sed -i '/$OLDUUID/s/^/#/g' /etc/fstab
+		#sed -i "/^`echo $OLDUUID`/d" /etc/fstab
 		checkIt
 	else
 		exit 2
