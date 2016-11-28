@@ -1,6 +1,6 @@
 #!/bin/bash
 
-echo "Enter the location of the new drive (eg sdb,sdc,sdd):
+echo "Enter the location of the new drive (eg sdb,sdc,sdd):"
 read NEWDRIVE
 
 ## Backup important things
