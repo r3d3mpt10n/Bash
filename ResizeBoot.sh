@@ -1,5 +1,8 @@
 #!/bin/bash
 
+echo "Enter the location of the new drive (eg sdb,sdc,sdd):
+read NEWDRIVE
+
 ## Backup important things
 function backup(){
 	cp /etc/fstab /root/backup-fstab
@@ -8,8 +11,8 @@ function backup(){
 		goldenFix
 		echo $?
 	else
-		exit 3
-		echo "Script failed with code $?" >> /root/ResizeBoot.log
+   		echo "Script failed with code $?" >> /root/ResizeBoot.log
+		exit
 	fi
 }
 
@@ -20,19 +23,19 @@ function goldenFix(){
 	mkdir /boot-new
 	cp -r -a /boot/* /boot-new
 	if [ -d /boot-new ]; then
-		echo -e "o\nn\np\n1\n\n+500M\nw" | fdisk /dev/vdb
+		echo -e "o\nn\np\n1\n\n+500M\nw" | fdisk /dev/$NEWDRIVE
 		partprobe
-		sleep 10
-		mkfs.ext4 /dev/vdb1
+		sleep 30
+		mkfs.ext4 /dev/`echo $NEWDRIVE`1
 		umount /boot
 	else
-		exit 1
 		echo "Script failed with code $?" >> /root/ResizeBoot.log
+		exit
 	fi
 	if [ ! -e /boot/grub2/grub.cfg ]; then
-		mount /dev/vdb1 /boot
+		mount /dev/`echo $NEWDRIVE`1 /boot
 		cp -r -a /boot-new/* /boot
-		DEVUUID=`blkid | grep /dev/vdb1 | awk '{ print$2 }'`
+		DEVUUID=`blkid | grep /dev/`echo $NEWDRIVE`1 | awk '{ print $2 }'`
 		echo "$DEVUUID  /boot     ext4    defaults   0 0" >> /etc/fstab
 		#sed -i "/^`echo $OLDUUID`/d" /etc/fstab
 		checkIt
@@ -46,15 +49,19 @@ function goldenFix(){
 function checkIt(){
 	mount -a 2>/root/ResizeBoot-fstab.log
 	if [ $? -eq 0 ]; then
-		grub2-mkconfig -o /boot/grub2/grub.cfg
-		echo "Nailed it! This server should be ok to be rebooted."
+		#grub2-mkconfig -o /boot/grub2/grub.cfg
+		echo "Nailed it! This server should be ok to be rebooted." 
 		
 	else
-		echo "Well, didn't quite nail it. Check fstab. If not, nuke and pave, it's the only way! (It's not. You broke fstab.)"
-		exit 4
 		echo "Script failed with code $?" >> /root/ResizeBoot.log
+		exit
 	fi
 		
 }
 
-backup
+if [ $NEWDRIVE == sd[a-z] ]; then
+	backup
+else
+	echo "Please enter the drive in the format sd*. So sdb, sdd, sdc, etc"
+	exit
+fi
