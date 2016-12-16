@@ -3,7 +3,7 @@
 ## This script is to automate regular server backups. Eventually this backup will point to a software RAID group. For now, copies may need to be kept online. Also need to add Web Directory backups!!
 
 
-
+readonly MYVAR=$('Echo MyVar')
 readonly DATE=$(date +"%d-%m-%Y-%T")
 readonly BDIR="/media/Storage/Server.Backup/home_backups"
 #readonly BDIR="/home/shep/Documents/backups/"
