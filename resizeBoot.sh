@@ -48,16 +48,33 @@ function goldenFix(){
 function checkIt(){
 	mount -a 2>/root/ResizeBoot-fstab.log
 	if [ $? -eq 0 ]; then
-		#grub2-mkconfig -o /boot/grub2/grub.cfg
-		echo "Nailed it! This server should be ok to be rebooted." >> /root/ResizeBoot.log
-
-	else
-		echo "Script failed to mount the new /boot from fstab" >> /root/ResizeBoot.log
-		exit
+		if cat /boot/grub2/grub.cfg 2>/dev/null | grep -q "`cat /proc/cmdline | awk '{ print $1 }' | cut -f 2 -d =`"; then
+			  ## GRUB 1 stuff goes here
+				grub-install --recheck /dev/sda
+		    if grub-install /dev/sda; then
+					echo "Nailed it! This legacy server should be ok to be rebooted." >> /root/ResizeBoot.log
+				 else
+					echo "Script failed to update legacy GRUB - eww" >> /root/ResizeBoot.log
+					exit
+				 fi
+		else
+			if grub2-mkconfig -o /boot/grub2/grub.cfg; then
+			 echo "Nailed it! This server should be ok to be rebooted." >> /root/ResizeBoot.log
+	    else
+		   echo "Script failed to upldate GRUB 2" >> /root/ResizeBoot.log
+		   exit
+		  fi
+		fi
 	fi
 
 }
 ## This could be replaced by searching for the new unpartitioned drive.
 echo "Enter the location of the new drive (eg sdb,sdc,sdd):"
 read NEWDRIVE
-backup
+
+if [ $NEWDRIVE == sd[a-z] ]; then
+    backup
+else
+		echo "Enter the drive as sda, sdb, sdc"
+		exit
+fi
