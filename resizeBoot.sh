@@ -48,23 +48,23 @@ function goldenFix(){
 function checkIt(){
 	mount -a 2>/root/ResizeBoot-fstab.log
 	if [ $? -eq 0 ]; then
-		if cat /boot/grub2/grub.cfg 2>/dev/null | grep -q "`cat /proc/cmdline | awk '{ print $1 }' | cut -f 2 -d =`"; then
-			  ## GRUB 1 stuff goes here
-				grub-install --recheck /dev/sda
+		if [ /boot/grub/menu.lst -nt /boot/grub2/grub.cfg ]; then
+		    ## GRUB 1 stuff goes here
+		    grub-install --recheck /dev/sda
 		    if grub-install /dev/sda; then
-					echo "Nailed it! This legacy server should be ok to be rebooted." >> /root/ResizeBoot.log
-				 else
-					echo "Script failed to update legacy GRUB - eww" >> /root/ResizeBoot.log
-					exit
-				 fi
+			  echo "Nailed it! This legacy server should be ok to be rebooted." >> /root/ResizeBoot.log
+		    else
+			  echo "Script failed to update legacy GRUB - eww" >> /root/ResizeBoot.log
+			  exit
+		    fi
 		else
-			if grub2-mkconfig -o /boot/grub2/grub.cfg; then
-			 echo "Nailed it! This server should be ok to be rebooted." >> /root/ResizeBoot.log
-	    else
-		   echo "Script failed to upldate GRUB 2" >> /root/ResizeBoot.log
-		   exit
-		  fi
-		fi
+		    if grub2-mkconfig -o /boot/grub2/grub.cfg; then
+			  echo "Nailed it! This server should be ok to be rebooted." >> /root/ResizeBoot.log
+	       	    else
+		   	  echo "Script failed to upldate GRUB 2" >> /root/ResizeBoot.log
+		  	  exit
+		    fi
+		 fi
 	fi
 
 }
