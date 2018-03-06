@@ -64,17 +64,10 @@ function checkIt(){
 		   	  echo "Script failed to upldate GRUB 2" >> /root/ResizeBoot.log
 		  	  exit
 		    fi
-		 fi
+		fi
 	fi
-
 }
 ## This could be replaced by searching for the new unpartitioned drive.
 echo "Enter the location of the new drive (eg sdb,sdc,sdd):"
 read NEWDRIVE
-
-if [ $NEWDRIVE == sd[a-z] ]; then
-    backup
-else
-		echo "Enter the drive as sda, sdb, sdc"
-		exit
-fi
+backup
